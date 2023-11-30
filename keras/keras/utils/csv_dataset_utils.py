@@ -225,6 +225,13 @@ def prepare_dataset(
     if batch_size is not None:
         if shuffle:
             dataset = dataset.shuffle(buffer_size=batch_size * 8, seed=seed)
+
+        if not ragged:
+            dataset = dataset.padded_batch(
+                batch_size, padded_shapes=([None, None], [])
+            )
+        else:
+            dataset = dataset.batch(batch_size)
     else:
         if shuffle:
             dataset = dataset.shuffle(buffer_size=1024, seed=seed)
