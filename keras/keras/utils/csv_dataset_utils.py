@@ -31,31 +31,31 @@ def csv_dataset_from_directory(
     ```
     main_directory/
     ...class_a/
-    ......a_audio_1.wav
-    ......a_audio_2.wav
+    ......a_data_1.csv
+    ......a_data_2.csv
     ...class_b/
-    ......b_audio_1.wav
-    ......b_audio_2.wav
+    ......b_data_1.csv
+    ......b_data_2.csv
     ```
 
-    Then calling `audio_dataset_from_directory(main_directory,
+    Then calling `csv_dataset_from_directory(main_directory,
     labels='inferred')`
-    will return a `tf.data.Dataset` that yields batches of audio files from
+    will return a `tf.data.Dataset` that yields batches of csv files from
     the subdirectories `class_a` and `class_b`, together with labels
     0 and 1 (0 corresponding to `class_a` and 1 corresponding to `class_b`).
 
-    Only `.wav` files are supported at this time.
+    Only `.csv` files are supported at this time.
 
     Args:
         directory: Directory where the data is located.
             If `labels` is `"inferred"`, it should contain subdirectories,
-            each containing audio files for a class. Otherwise, the directory
+            each containing csv files for a class. Otherwise, the directory
             structure is ignored.
         labels: Either "inferred" (labels are generated from the directory
             structure), `None` (no labels), or a list/tuple of integer labels
-            of the same size as the number of audio files found in
+            of the same size as the number of csv files found in
             the directory. Labels should be sorted according to the
-            alphanumeric order of the audio file paths
+            alphanumeric order of the csv file paths
             (obtained via `os.walk(directory)` in Python).
         label_mode: String describing the encoding of `labels`. Options are:
             - `"int"`: means that the labels are encoded as integers (e.g. for
@@ -73,12 +73,6 @@ def csv_dataset_from_directory(
         batch_size: Size of the batches of data. Default: 32. If `None`,
             the data will not be batched
             (the dataset will yield individual samples).
-        sampling_rate: Audio sampling rate (in samples per second).
-        output_sequence_length: Maximum length of an audio sequence. Audio files
-            longer than this will be truncated to `output_sequence_length`.
-            If set to `None`, then all sequences in the same batch will
-            be padded to the
-            length of the longest sequence in the batch.
         ragged: Whether to return a Ragged dataset (where each sequence has its
             own length). Defaults to `False`.
         shuffle: Whether to shuffle the data. Defaults to `True`.
@@ -90,14 +84,16 @@ def csv_dataset_from_directory(
             `"validation"` or `"both"`. Only used if `validation_split` is set.
         follow_links: Whether to visits subdirectories pointed to by symlinks.
             Defaults to `False`.
+        head: If the csv files contains head or not.
+        stride: If you desire any stride upon you data.
 
     Returns:
 
     A `tf.data.Dataset` object.
 
     - If `label_mode` is `None`, it yields `string` tensors of shape
-      `(batch_size,)`, containing the contents of a batch of audio files.
-    - Otherwise, it yields a tuple `(audio, labels)`, where `audio`
+      `(batch_size,)`, containing the contents of a batch of csv files.
+    - Otherwise, it yields a tuple `(csv, labels)`, where `csv`
       has shape `(batch_size, sequence_length, num_channels)` and `labels`
       follows the format described
       below.
@@ -116,11 +112,11 @@ def csv_dataset_from_directory(
         if not isinstance(labels, (list, tuple)):
             raise ValueError(
                 "The `labels` argument should be a list/tuple of integer "
-                "labels, of the same size as the number of audio files in "
+                "labels, of the same size as the number of csv files in "
                 "the target directory. If you wish to infer the labels from "
                 "the subdirectory names in the target directory,"
                 ' pass `labels="inferred"`. '
-                "If you wish to get a dataset that only contains audio samples "
+                "If you wish to get a dataset that only contains csvs"
                 f"(no labels), pass `labels=None`. Received: labels={labels}"
             )
         if class_names:
@@ -257,7 +253,7 @@ def get_training_and_validation_dataset(
     )
     if not file_paths_train:
         raise ValueError(
-            f"No training audio files found in directory {directory}. "
+            f"No training csv files found in directory {directory}. "
             f"Allowed format(s): {ALLOWED_FORMATS}"
         )
 
@@ -266,7 +262,7 @@ def get_training_and_validation_dataset(
     )
     if not file_paths_val:
         raise ValueError(
-            f"No validation audio files found in directory {directory}. "
+            f"No validation csv files found in directory {directory}. "
             f"Allowed format(s): {ALLOWED_FORMATS}"
         )
 
@@ -310,7 +306,7 @@ def get_dataset(
     )
     if not file_paths:
         raise ValueError(
-            f"No audio files found in directory {directory}. "
+            f"No csv files found in directory {directory}. "
             f"Allowed format(s): {ALLOWED_FORMATS}"
         )
 
