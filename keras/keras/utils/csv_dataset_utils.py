@@ -21,7 +21,7 @@ def csv_dataset_from_directory(
     validation_split=None,
     subset=None,
     follow_links=False,
-    stride=0,
+    stride=1,
     head=True,
 ):
     """Generates a `tf.data.Dataset` from csv files in a directory.
@@ -203,6 +203,8 @@ def csv_dataset_from_directory(
             label_mode=label_mode,
             class_names=class_names,
             ragged=ragged,
+            stride=stride,
+            head=head
         )
         dataset = prepare_dataset(
             dataset=dataset,
@@ -221,20 +223,12 @@ def prepare_dataset(
     shuffle,
     seed,
     class_names,
-    output_sequence_length,
     ragged,
 ):
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     if batch_size is not None:
         if shuffle:
             dataset = dataset.shuffle(buffer_size=batch_size * 8, seed=seed)
-
-        if output_sequence_length is None and not ragged:
-            dataset = dataset.padded_batch(
-                batch_size, padded_shapes=([None, None], [])
-            )
-        else:
-            dataset = dataset.batch(batch_size)
     else:
         if shuffle:
             dataset = dataset.shuffle(buffer_size=1024, seed=seed)
@@ -308,6 +302,8 @@ def get_dataset(
     label_mode,
     class_names,
     ragged,
+    stride,
+    head
 ):
     file_paths, labels = dataset_utils.get_training_or_validation_split(
         file_paths, labels, validation_split, subset
@@ -345,12 +341,12 @@ def paths_and_labels_to_dataset(
     head
 ):
     """Constructs a fixed-size dataset of csvs and labels."""
-    args = {stride, head}
+    args = {"stride": stride, "head": head}
     path_ds = tf.data.Dataset.from_tensor_slices(file_paths)
     readings_ds = path_ds.map(
         lambda x: getReadings(
             x, **args
-        ),
+        ).to_tensor(),
         num_parallel_calls=tf.data.AUTOTUNE,
     )
 
