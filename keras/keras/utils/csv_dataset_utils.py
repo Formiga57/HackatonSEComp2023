@@ -172,6 +172,8 @@ def csv_dataset_from_directory(
             label_mode=label_mode,
             class_names=class_names,
             ragged=ragged,
+            stride=stride,
+            head=head
         )
         train_dataset = prepare_dataset(
             dataset=train_dataset,
@@ -249,9 +251,9 @@ def get_training_and_validation_dataset(
     directory,
     label_mode,
     class_names,
-    sampling_rate,
-    output_sequence_length,
     ragged,
+    stride,
+        head
 ):
     (
         file_paths_train,
@@ -279,8 +281,6 @@ def get_training_and_validation_dataset(
         labels=labels_train,
         label_mode=label_mode,
         num_classes=len(class_names) if class_names else 0,
-        sampling_rate=sampling_rate,
-        output_sequence_length=output_sequence_length,
         ragged=ragged,
         stride=stride,
         head=head
@@ -291,8 +291,6 @@ def get_training_and_validation_dataset(
         labels=labels_val,
         label_mode=label_mode,
         num_classes=len(class_names) if class_names else 0,
-        sampling_rate=sampling_rate,
-        output_sequence_length=output_sequence_length,
         ragged=ragged,
         stride=stride,
         head=head
@@ -309,8 +307,6 @@ def get_dataset(
     subset,
     label_mode,
     class_names,
-    sampling_rate,
-    output_sequence_length,
     ragged,
 ):
     file_paths, labels = dataset_utils.get_training_or_validation_split(
@@ -327,8 +323,6 @@ def get_dataset(
         labels=labels,
         label_mode=label_mode,
         num_classes=len(class_names) if class_names else 0,
-        sampling_rate=sampling_rate,
-        output_sequence_length=output_sequence_length,
         ragged=ragged,
         stride=stride,
         head=head
@@ -346,8 +340,6 @@ def paths_and_labels_to_dataset(
     labels,
     label_mode,
     num_classes,
-    sampling_rate,
-    output_sequence_length,
     ragged,
     stride,
     head
